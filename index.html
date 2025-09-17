@@ -3,94 +3,134 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>🎵 Full Music Player</title>
+  <title>🎵 Stylish Music Player</title>
   <style>
     body {
-      background: #121212;
-      color: #fff;
-      font-family: sans-serif;
-      text-align: center;
+      background: linear-gradient(135deg, #1e1e2f, #111);
+      color: #eee;
+      font-family: "Segoe UI", sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      margin: 0;
       padding: 20px;
     }
     h1 {
-      margin-bottom: 10px;
+      margin: 10px 0 20px;
+      font-size: 2rem;
+      color: #1db954;
+    }
+    .player {
+      background: rgba(30,30,47,0.95);
+      padding: 20px;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      width: 90%;
+      max-width: 500px;
+    }
+    .controls {
+      display: flex;
+      justify-content: center;
+      margin: 15px 0;
     }
     .controls button {
-      margin: 5px;
-      padding: 10px 20px;
+      margin: 0 8px;
+      padding: 10px 15px;
       border: none;
-      border-radius: 10px;
+      border-radius: 50%;
       background: #1db954;
       color: #fff;
+      font-size: 16px;
       cursor: pointer;
+      transition: transform 0.2s, background 0.2s;
     }
     .controls button:hover {
       background: #1ed760;
+      transform: scale(1.1);
     }
     input[type="range"] {
-      width: 200px;
+      width: 100%;
+      margin: 10px 0;
+      accent-color: #1db954;
+    }
+    .eq-controls {
+      margin: 15px 0;
+    }
+    .eq-controls label {
+      font-size: 0.9rem;
+      margin: 0 5px;
     }
     canvas {
       margin-top: 20px;
       background: #000;
       width: 100%;
-      height: 150px;
-      border-radius: 10px;
+      height: 120px;
+      border-radius: 15px;
     }
     ul {
       list-style: none;
       padding: 0;
+      margin: 10px 0 0;
+      max-height: 150px;
+      overflow-y: auto;
     }
     li {
-      padding: 5px;
+      padding: 8px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
       cursor: pointer;
+      transition: background 0.2s;
     }
     li:hover {
-      background: #333;
+      background: rgba(255,255,255,0.1);
+    }
+    li.active {
+      color: #1db954;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
-  <h1>🎶 Music Player</h1>
+  <h1>🎶 Stylish Music Player</h1>
 
-  <!-- ファイル選択 -->
-  <input type="file" id="fileInput" multiple accept="audio/*" />
-  <br/><br/>
+  <div class="player">
+    <!-- ファイル選択 -->
+    <input type="file" id="fileInput" multiple accept="audio/*" />
 
-  <!-- 再生コントロール -->
-  <div class="controls">
-    <button id="prev">⏮ Prev</button>
-    <button id="play">▶ Play</button>
-    <button id="next">⏭ Next</button>
-    <button id="shuffle">🔀 Shuffle</button>
-    <button id="loop">🔁 Loop</button>
+    <!-- 再生コントロール -->
+    <div class="controls">
+      <button id="prev">⏮</button>
+      <button id="play">▶</button>
+      <button id="next">⏭</button>
+      <button id="shuffle">🔀</button>
+      <button id="loop">🔁</button>
+    </div>
+
+    <!-- シークバー -->
+    <input type="range" id="seekBar" value="0" step="1"/>
+
+    <!-- 音量 -->
+    <label>🔊</label>
+    <input type="range" id="volume" min="0" max="1" step="0.01" value="1"/>
+
+    <!-- イコライザー -->
+    <div class="eq-controls">
+      <label>Bass</label>
+      <input type="range" id="bass" min="-30" max="30" value="0"/>
+      <label>Mid</label>
+      <input type="range" id="mid" min="-30" max="30" value="0"/>
+      <label>Treble</label>
+      <input type="range" id="treble" min="-30" max="30" value="0"/>
+    </div>
+
+    <!-- プレイリスト -->
+    <h3>📜 Playlist</h3>
+    <ul id="playlist"></ul>
+
+    <!-- ビジュアライザー -->
+    <canvas id="visualizer"></canvas>
   </div>
-
-  <!-- シークバー -->
-  <input type="range" id="seekBar" value="0" step="1"/>
-  <br/><br/>
-
-  <!-- 音量 -->
-  <label>🔊 Volume</label>
-  <input type="range" id="volume" min="0" max="1" step="0.01" value="1"/>
-
-  <!-- イコライザー -->
-  <div>
-    <h3>🎚 Equalizer</h3>
-    <label>Bass</label>
-    <input type="range" id="bass" min="-30" max="30" value="0"/>
-    <label>Mid</label>
-    <input type="range" id="mid" min="-30" max="30" value="0"/>
-    <label>Treble</label>
-    <input type="range" id="treble" min="-30" max="30" value="0"/>
-  </div>
-
-  <!-- プレイリスト -->
-  <h3>📜 Playlist</h3>
-  <ul id="playlist"></ul>
-
-  <!-- ビジュアライザー -->
-  <canvas id="visualizer"></canvas>
 
   <script>
     const fileInput = document.getElementById("fileInput");
@@ -115,7 +155,6 @@
     let isLoop = false;
     let isShuffle = false;
 
-    // AudioNode接続
     let sourceNode;
     const gainNode = audioCtx.createGain();
     const analyser = audioCtx.createAnalyser();
@@ -133,7 +172,6 @@
     trebleEQ.type = "highshelf";
     trebleEQ.frequency.value = 3000;
 
-    // 接続チェーン: source -> EQ -> gain -> analyser -> destination
     function connectNodes() {
       if (sourceNode) sourceNode.disconnect();
       sourceNode = audioCtx.createMediaElementSource(audio);
@@ -146,7 +184,6 @@
     }
     connectNodes();
 
-    // ファイル選択
     fileInput.addEventListener("change", (e) => {
       trackList = Array.from(e.target.files);
       renderPlaylist();
@@ -158,6 +195,7 @@
       trackList.forEach((file, index) => {
         const li = document.createElement("li");
         li.textContent = file.name;
+        if (index === currentTrack) li.classList.add("active");
         li.addEventListener("click", () => {
           loadTrack(index);
           playAudio();
@@ -170,19 +208,20 @@
       currentTrack = index;
       audio.src = URL.createObjectURL(trackList[index]);
       seekBar.value = 0;
+      renderPlaylist();
     }
 
     function playAudio() {
       audio.play();
       audioCtx.resume();
       isPlaying = true;
-      playBtn.textContent = "⏸ Pause";
+      playBtn.textContent = "⏸";
     }
 
     function pauseAudio() {
       audio.pause();
       isPlaying = false;
-      playBtn.textContent = "▶ Play";
+      playBtn.textContent = "▶";
     }
 
     playBtn.addEventListener("click", () => {
@@ -226,7 +265,6 @@
       }
     });
 
-    // シークバー
     audio.addEventListener("timeupdate", () => {
       seekBar.max = audio.duration || 0;
       seekBar.value = audio.currentTime;
@@ -236,12 +274,10 @@
       audio.currentTime = seekBar.value;
     });
 
-    // 音量
     volumeControl.addEventListener("input", () => {
       gainNode.gain.value = volumeControl.value;
     });
 
-    // EQ
     bassControl.addEventListener("input", () => {
       bassEQ.gain.value = bassControl.value;
     });
@@ -252,7 +288,6 @@
       trebleEQ.gain.value = trebleControl.value;
     });
 
-    // ビジュアライザー
     const canvas = document.getElementById("visualizer");
     const ctx = canvas.getContext("2d");
     analyser.fftSize = 256;
@@ -262,14 +297,15 @@
     function draw() {
       requestAnimationFrame(draw);
       analyser.getByteFrequencyData(dataArray);
-      ctx.fillStyle = "#000";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       const barWidth = (canvas.width / bufferLength) * 2.5;
       let x = 0;
       for (let i = 0; i < bufferLength; i++) {
         const barHeight = dataArray[i];
-        ctx.fillStyle = "rgb(" + (barHeight + 100) + ",50,50)";
+        const r = barHeight + 50;
+        const g = 50 + (i % 50);
+        ctx.fillStyle = `rgb(${r},${g},150)`;
         ctx.fillRect(x, canvas.height - barHeight / 2, barWidth, barHeight / 2);
         x += barWidth + 1;
       }
