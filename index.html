@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>🎵 Stylish Music Player</title>
+  <title>🌸 Pop Music Player</title>
   <style>
     body {
-      background: linear-gradient(135deg, #1e1e2f, #111);
-      color: #eee;
-      font-family: "Segoe UI", sans-serif;
+      background: linear-gradient(135deg, #fdfbfb, #ebedee);
+      color: #333;
+      font-family: "Segoe UI", "Helvetica Neue", sans-serif;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -20,15 +20,16 @@
     h1 {
       margin: 10px 0 20px;
       font-size: 2rem;
-      color: #1db954;
+      color: #ff4081;
     }
     .player {
-      background: rgba(30,30,47,0.95);
+      background: #fff;
       padding: 20px;
       border-radius: 20px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.1);
       width: 90%;
       max-width: 500px;
+      border: 2px solid #ffe0f0;
     }
     .controls {
       display: flex;
@@ -37,26 +38,27 @@
     }
     .controls button {
       margin: 0 8px;
-      padding: 10px 15px;
+      padding: 12px 15px;
       border: none;
       border-radius: 50%;
-      background: #1db954;
+      background: #ff80ab;
       color: #fff;
       font-size: 16px;
       cursor: pointer;
       transition: transform 0.2s, background 0.2s;
     }
     .controls button:hover {
-      background: #1ed760;
+      background: #ff4081;
       transform: scale(1.1);
     }
     input[type="range"] {
       width: 100%;
       margin: 10px 0;
-      accent-color: #1db954;
+      accent-color: #ff4081;
     }
     .eq-controls {
       margin: 15px 0;
+      text-align: center;
     }
     .eq-controls label {
       font-size: 0.9rem;
@@ -64,7 +66,7 @@
     }
     canvas {
       margin-top: 20px;
-      background: #000;
+      background: #fce4ec;
       width: 100%;
       height: 120px;
       border-radius: 15px;
@@ -78,21 +80,21 @@
     }
     li {
       padding: 8px;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
+      border-bottom: 1px solid #f8bbd0;
       cursor: pointer;
       transition: background 0.2s;
     }
     li:hover {
-      background: rgba(255,255,255,0.1);
+      background: #fce4ec;
     }
     li.active {
-      color: #1db954;
+      color: #ff4081;
       font-weight: bold;
     }
   </style>
 </head>
 <body>
-  <h1>🎶 Stylish Music Player</h1>
+  <h1>🌸 Pop Music Player</h1>
 
   <div class="player">
     <!-- ファイル選択 -->
@@ -249,12 +251,12 @@
 
     shuffleBtn.addEventListener("click", () => {
       isShuffle = !isShuffle;
-      shuffleBtn.style.background = isShuffle ? "#ff9800" : "#1db954";
+      shuffleBtn.style.background = isShuffle ? "#ff9800" : "#ff80ab";
     });
 
     loopBtn.addEventListener("click", () => {
       isLoop = !isLoop;
-      loopBtn.style.background = isLoop ? "#ff9800" : "#1db954";
+      loopBtn.style.background = isLoop ? "#ff9800" : "#ff80ab";
     });
 
     audio.addEventListener("ended", () => {
@@ -303,9 +305,10 @@
       let x = 0;
       for (let i = 0; i < bufferLength; i++) {
         const barHeight = dataArray[i];
-        const r = barHeight + 50;
-        const g = 50 + (i % 50);
-        ctx.fillStyle = `rgb(${r},${g},150)`;
+        const r = 255 - i;
+        const g = 100 + (i % 100);
+        const b = 150 + (barHeight % 100);
+        ctx.fillStyle = `rgb(${r},${g},${b})`;
         ctx.fillRect(x, canvas.height - barHeight / 2, barWidth, barHeight / 2);
         x += barWidth + 1;
       }
